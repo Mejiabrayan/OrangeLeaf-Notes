@@ -8,7 +8,7 @@ This project is currently under development. New features and improvements are b
 
 ## Showcase
 
-![OrangeLeaf Notes Showcase](/showcase.png)
+![OrangeLeaf Notes Showcase](/public/showcase.png)
 
 ## Features
 
@@ -27,8 +27,8 @@ This project is currently under development. New features and improvements are b
 To run this project locally, clone the repository and install the dependencies:
 
 ```bash
-git clone https://your-repository-url.git
-cd your-project-folder
+git clone https://github.com/mejiabrayan/orangeleaf-notes
+cd orange-leaf
 npm install
 npm run dev
 Open http://localhost:3000 with your browser to see the result.
