@@ -19,6 +19,11 @@ const config = {
     },
     extend: {
       colors: {
+        // Custom Colors
+        main: '#0B0A0E',
+        mainColor: '#F2A575',
+        white: '#DADCDF',
+        subBackground: '#100F13',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -59,6 +64,12 @@ const config = {
         sm: 'calc(var(--radius) - 4px)',
       },
       keyframes: {
+        shimmer: {
+          '100%': {
+            transform: 'translateX(100%)',
+          },
+        },
+
         'background-shine': {
           '0%, 100%': { backgroundPosition: '200% 0' },
           '50%': { backgroundPosition: '-200% 0' },
@@ -90,7 +101,7 @@ const config = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
 } satisfies Config;
 
 export default config;

@@ -1,21 +1,28 @@
+'use client';
+
 import React from 'react';
 import { siteConfig } from '@/app/config';
-import { ChevronLeft, Menu } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation'; // Next.js 13 hook
 
 export default function Sidebar() {
+  const pathname = usePathname(); // Get the current pathname
+
   return (
     <aside className='md:w-1/5 p-4 flex md:block'>
-      <div className='text-white md:hidden'>
-        <ChevronLeft className='w-6 h-6' />
-      </div>
-
       <nav className='hidden md:block'>
         {siteConfig.map((site, index) => (
-          <ul key={index}>
+          <ul key={index} className='list-none p-0'>
+            {/* Use Link and apply styles conditionally */}
             <Link
               href={site.path}
-              className='text-gray-500 font-medium dark:text-slate-400 dark:hover:text-white hover:text-black mt-2 cursor-pointer flex items-center gap-2'
+              key={site.path}
+              className={`font-medium mt-2 cursor-pointer flex items-center gap-2 ${
+                pathname === site.path
+                  ? 'text-[#DADCDF]'
+                  : 'text-gray-500 opacity-50' 
+              }`}
             >
               {site.name}
             </Link>

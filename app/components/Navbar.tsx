@@ -2,7 +2,7 @@ import React from 'react';
 import Logo from './Logo';
 
 type NavBarProps = {
-  userEmail: string;
+  userEmail?: string;
 };
 
 const NavBar: React.FC<NavBarProps> = ({ userEmail }) => {

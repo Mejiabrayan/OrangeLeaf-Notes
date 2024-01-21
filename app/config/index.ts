@@ -8,8 +8,8 @@ interface SiteConfig {
 
 export const siteConfig: SiteConfig[] = [
   {
-    name: 'All Notes',
-    path: '/',
+    name: 'Notes',
+    path: '/notes',
   },
   {
     name: 'Memories',

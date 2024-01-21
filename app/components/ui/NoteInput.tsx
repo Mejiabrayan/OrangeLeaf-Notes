@@ -1,46 +1,77 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useRef, useState } from 'react';
 import { Textarea } from './textarea';
 import { Button } from './button';
 import { toast } from 'sonner';
 import { User } from '@supabase/supabase-js';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Suspense } from 'react';
+import { LoadingTextArea } from '../LoadingSkeletons';
 
 interface Note {
   id: number;
   content: string;
   user_id: string;
-  // include other note properties as needed
 }
 
 const NoteInput: React.FC = () => {
   const [noteContent, setNoteContent] = useState('');
   const [user, setUser] = useState<User | null>(null);
-  const [notes, setNotes] = useState<Note[]>([]); // Initialize notes as an empty array
+  const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isTextareaFocused, setIsTextareaFocused] = useState(false);
 
   const supabase = createClientComponentClient();
 
   useEffect(() => {
-    async function getUser() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-      setLoading(false);
-
-      if (user) {
-        fetchNotes(); // Fetch notes after getting the user
-      }
-    }
-    getUser();
+    getUserAndNotes();
   }, []);
 
-  const fetchNotes = async () => {
+  const handleTextareaFocus = () => {
+    setIsTextareaFocused(true);
+  };
+
+  const handleTextareaBlur = () => {
+    setIsTextareaFocused(false);
+  };
+
+  // Set up and tear down the global keydown event listener
+  useEffect(() => {
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
+      // Use `event.code` to check for 'KeyK' to distinguish between different keyboard layouts
+      if ((event.metaKey || event.ctrlKey) && event.code === 'KeyK') {
+        event.preventDefault();
+        textareaRef.current?.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleGlobalKeyDown);
+    };
+  }, []);
+
+  const getUserAndNotes = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    setUser(user);
+    setLoading(false);
+
+    if (user) {
+      fetchNotes(user.id); // Fetch notes after getting the user
+    }
+  };
+
+  const fetchNotes = async (userId: string) => {
     const { data, error } = await supabase
       .from('notes')
       .select('*')
-      .eq('user_id', user?.id); // fetch notes for the current user
+      .eq('user_id', userId)
+      .order('id', { ascending: false });
 
     if (error) {
       console.error('Error fetching notes:', error);
@@ -57,7 +88,7 @@ const NoteInput: React.FC = () => {
   };
 
   const handleAddNote = async () => {
-    if (!noteContent.trim()) return; // Avoid adding empty notes
+    if (!noteContent.trim()) return; // Don't insert empty notes into the database
     if (!user) {
       console.error('User not authenticated');
       return;
@@ -72,36 +103,59 @@ const NoteInput: React.FC = () => {
 
     if (error) {
       console.error('Error adding note:', error);
+      toast('Error adding note', {
+        description: 'There was an error adding your note',
+      });
       return;
     }
 
     setNoteContent(''); // Clear the textarea after adding
-    fetchNotes(); // Fetch notes again to update the list
-    console.log('Note added:', data);
-    toast('Note Added 🎉', {
+    if (data) {
+      setNotes((currentNotes) => [...currentNotes, ...data]); // Add new note to state
+    }
+    toast('Note Added', {
       description: 'Your note has been added successfully',
-      action: {
-        label: 'Undo',
-        onClick: () => console.log('Undo'),
-      },
     });
-    console.log(notes);
+  };
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Check if the Enter key is pressed without Shift
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault(); // Prevent the default action (new line)
+      handleAddNote(); // Call the function to add the note
+    }
   };
 
-  // Render a loading state until the user is fetched
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'K') {
+        event.preventDefault();
+        textareaRef.current?.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleGlobalKeyDown);
+    };
+  }, []);
 
   return (
     <div>
-      <Textarea
-        className='dark:bg-[#121212] dark:shadow-none  font-medium dark:text-slate-400 p-3  border-1 block h-12 w-full rounded-md border border-double border-slate-800 border-transparent bg-[linear-gradient(#000,#000),linear-gradient(to_right,#334454,#334454)]	bg-origin-border px-3 py-2 text-slate-200 transition-all duration-500 [background-clip:padding-box,_border-box] placeholder:text-slate-500 focus:bg-[linear-gradient(#000,#000),linear-gradient(to_right,#c7d2fe,#f9b278)] focus:outline-none'
-        placeholder='Your best ideas here...'
-        value={noteContent}
-        onChange={handleNoteContentChange}
-        autoFocus
-      />
+      <Suspense fallback={<LoadingTextArea />}>
+        <Textarea
+          className='min-h-[300px] w-full p-4 text-white placeholder-gray-500 outline-none resize-none'
+          placeholder='Your best ideas here... (Press Enter to add note)'
+          value={noteContent}
+          onChange={handleNoteContentChange}
+          onKeyDown={handleKeyDown}
+          onFocus={handleTextareaFocus}
+          onBlur={handleTextareaBlur}
+          ref={textareaRef}
+          autoFocus
+        />
+      </Suspense>
+
       <Button onClick={handleAddNote} variant={'primary'}>
         Add Note
       </Button>

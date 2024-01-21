@@ -63,16 +63,27 @@ export default function LoginPage() {
     return <div>Loading...</div>;
   }
 
-  if (user) {
-    redirect('/notes');
-  }
   return (
-    <div className='flex flex-col items-center justify-center min-h-screen'>
+    <div className='relative flex flex-col items-center justify-center min-h-screen dark:bg-[linear-gradient(160deg,#0a0b0e,45%,#d35400,55%,#1c1f24)] '>
+      <svg
+        className='pointer-events-none fixed isolate z-10 opacity-70 mix-blend-soft-light w-full h-full'
+        xmlns='http://www.w3.org/2000/svg'
+      >
+        <filter id='grainy-effect'>
+          <feTurbulence
+            type='fractalNoise'
+            baseFrequency='0.5'
+            numOctaves='4'
+            stitchTiles='stitch'
+          ></feTurbulence>
+        </filter>
+        <rect width='100%' height='100%' filter='url(#grainy-effect)'></rect>
+      </svg>
       <div className='w-full max-w-xs'>
-        <form className='shadow-sm shadow-white rounded-lg px-8 pt-6 pb-8 mb-4 '>
+        <form className='shadow-sm shadow-white rounded-lg px-8 pt-6 pb-8 mb-4 bg-black '>
           {/* Heading */}
           <h1 className='text-white text-2xl font-bold mb-8 text-center'>
-            Cloudy Notes Login
+            OrangeLeaf Notes
           </h1>
           <div className='mb-4'>
             <Input
@@ -92,7 +103,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <div className='flex items-center justify-between'>
+          <div className='flex items-center justify-between gap-2'>
             <Button
               className='bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'
               type='button'

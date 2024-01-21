@@ -5,6 +5,7 @@ import { GeistSans } from 'geist/font/sans';
 import { ThemeProvider } from 'next-themes';
 import Provider from './providers/Provider';
 import { Toaster } from './components/ui/sonner';
+import { UserProvider } from './hooks/UserContext';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -17,9 +18,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='en' suppressHydrationWarning>
+    <html lang='en'  suppressHydrationWarning={true}>
       <body
-        className={`${GeistSans.variable} relative font-sans min-h-screen  bg-black dark:text-white antialiased`}
+        className={`${GeistSans.variable} relative font-sans min-h-screen  bg-[#0B0A0E] dark:text-white antialiased`}
       >
         <svg
           className='pointer-events-none fixed isolate -z-10 opacity-70 mix-blend-soft-light w-full h-full'
@@ -36,7 +37,9 @@ export default function RootLayout({
           <rect width='100%' height='100%' filter='url(#grainy-effect)'></rect>
         </svg>
         <main>
-          <Provider>{children}</Provider>
+          <UserProvider>
+            <Provider>{children}</Provider>
+          </UserProvider>
           <Toaster />
         </main>
       </body>

@@ -3,7 +3,7 @@ import React from 'react';
 
 const Logo: React.FC = () => {
   return (
-    <h1 className='font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-xl text-transparent'>
+    <h1 className='font-bold text-xl text-mainColor'>
       <Link href='/'>OrangeLeaf Notes</Link>
     </h1>
   );
